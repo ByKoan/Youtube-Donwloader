@@ -14,4 +14,9 @@ You can install everything you need with the following command:
 pip install -r requirements.txt
 ```
 
+If you wanna compile the program just run this two commands:
+```bash
+pip install pyinstaller
+pyinstaller --name YouTubeDownloader --onefile --windowed main.py
+```
 ----

@@ -1,2 +1,1 @@
-pip install yt_dlp
-pyinstaller --name YouTubeDownloader --onefile --windowed main.py
+pip install -r requirements.txt

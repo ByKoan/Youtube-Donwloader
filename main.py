@@ -396,7 +396,7 @@ class YouTubeDownloaderApp:
             self.playlist_download_path_entry.delete(0, tk.END)
             self.playlist_download_path_entry.insert(0, download_path)
 
-    # Funcion para descargar playlist enteras (Tiene que ser playlist publica)
+    # Funcion para descargar playlist enteras
     def download_playlist(self):
         url = self.playlist_url_entry.get().strip()
         download_type = self.download_type_combobox.get()

@@ -396,7 +396,7 @@ class YouTubeDownloaderApp:
             self.playlist_download_path_entry.delete(0, tk.END)
             self.playlist_download_path_entry.insert(0, download_path)
 
-    # Funcion para descargar playlist enteras
+    # Funcion para descargar playlist enteras (Tiene que ser playlist publica)
     def download_playlist(self):
         url = self.playlist_url_entry.get().strip()
         download_type = self.download_type_combobox.get()
@@ -410,24 +410,36 @@ class YouTubeDownloaderApp:
             self.playlist_message_text.insert(tk.END, f"Downloading playlist from {url}\n")
             self.playlist_message_text.config(state=tk.DISABLED)
 
+            # Opciones generales para yt-dlp
             ydl_opts = {
-                'format': f'bestaudio/best' if download_type == "Audio" else 'best',
                 'outtmpl': download_path + '/%(playlist_title)s/%(title)s.%(ext)s',
-                'merge_output_format': format if download_type == "Video" else None,
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': format,
-                    'preferredquality': '192',
-                }] if download_type == "Audio" else None,
             }
 
+            # Configuración para video o audio
+            if download_type == "Video":
+                ydl_opts.update({
+                    'format': 'bestvideo+bestaudio/best',  # Video con audio integrado
+                    'merge_output_format': format,  # Formato de salida elegido
+                })
+            elif download_type == "Audio":
+                ydl_opts.update({
+                    'format': 'bestaudio/best',  # Solo audio
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': format,
+                        'preferredquality': '192',  # Ajusta la calidad según sea necesario
+                    }],
+                })
+
+            # Configuración de calidad específica
             if quality == "High":
                 ydl_opts['format'] = 'bestvideo+bestaudio/best'
             elif quality == "Medium":
-                ydl_opts['format'] = 'best[height<=720]' # Si seleccionas la opcion "Medium" te descargara hasta una resolucion posible de 720p
+                ydl_opts['format'] = 'best[height<=720]+bestaudio/best'
             elif quality == "Low":
-                ydl_opts['format'] = 'best[height<=480]' # Si seleccionas la opcion "Low" te descargara hasta una resolucion posible de 480p
+                ydl_opts['format'] = 'best[height<=480]+bestaudio/best'
 
+            # Proceso de descarga
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 try:
                     ydl.download([url])
@@ -440,6 +452,7 @@ class YouTubeDownloaderApp:
                     self.playlist_message_text.config(state=tk.DISABLED)
         else:
             messagebox.showwarning("Warning", "Please fill all fields correctly.")
+
     
     def create_creator_tab(self):
         main_frame = ttk.Frame(self.creator_tab, padding="20")
